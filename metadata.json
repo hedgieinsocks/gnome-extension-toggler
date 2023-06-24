@@ -1,8 +1,7 @@
 {
     "uuid": "toggler@hedgie.tech",
     "name": "Toggler",
-    "description": "Toggle GNOME Terminal via a keyboard shortcut",
-    "version": 1,
+    "description": "Toggle GNOME Terminal via a keyboard shortcut\n\nIt is based on the code of 'Focus Window' extension",
     "shell-version": [ "43", "44" ],
     "settings-schema": "org.gnome.shell.extensions.toggler",
     "url": "https://github.com/hedgieinsocks/toggler"
