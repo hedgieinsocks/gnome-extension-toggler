@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.toggler" path="/org/gnome/shell/extensions/toggler/">
+    <key name="terminal-id" type="s">
+      <default>"org.gnome.Terminal.desktop"</default>
+    </key>
+    <key name="terminal-shortcut" type="as">
+      <default><![CDATA[['<Ctrl>space']]]></default>
+    </key>
+    <key name="terminal-shortcut-text" type="s">
+      <default><![CDATA['<Ctrl>space']]></default>
+    </key>
+  </schema>
+</schemalist>
