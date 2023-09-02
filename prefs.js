@@ -1,79 +1,64 @@
-'use strict';
+import Adw from "gi://Adw";
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
+import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
+export default class LineupPreferences extends ExtensionPreferences {
+    fillPreferencesWindow(window) {
+        const settings = this.getSettings();
 
-const {Adw, Gio, Gtk} = imports.gi;
+        const page = new Adw.PreferencesPage();
+        const group = new Adw.PreferencesGroup();
+        page.add(group);
 
-const ExtensionUtils = imports.misc.extensionUtils;
+        const rowId = new Adw.ActionRow({
+            title: "Terminal App ID",
+            subtitle: "/usr/share/applications/",
+        });
+        group.add(rowId);
 
+        const entryId = new Gtk.Entry({
+            placeholder_text: "org.gnome.Terminal.desktop",
+            text: settings.get_string("terminal-id"),
+            valign: Gtk.Align.CENTER,
+            hexpand: true,
+        });
 
-function init() {
-}
+        rowId.add_suffix(entryId);
+        rowId.activatable_widget = entryId;
 
+        settings.bind("terminal-id", entryId, "text", Gio.SettingsBindFlags.DEFAULT);
 
-function fillPreferencesWindow(window) {
-    const settings = ExtensionUtils.getSettings();
+        const rowShortcut = new Adw.ActionRow({
+            title: "Toggle Shortcut",
+            subtitle: "&lt;special_key&gt;regular_key",
+        });
+        group.add(rowShortcut);
 
-    const page = new Adw.PreferencesPage();
-    const group = new Adw.PreferencesGroup();
-    page.add(group);
+        const entryShortcut = new Gtk.Entry({
+            placeholder_text: "<Control>space",
+            text: settings.get_string("terminal-shortcut-text"),
+            valign: Gtk.Align.CENTER,
+            hexpand: true,
+        });
 
-    const rowId = new Adw.ActionRow({
-        title: 'Terminal App ID',
-        subtitle: '/usr/share/applications/',
-    });
-    group.add(rowId);
+        rowShortcut.add_suffix(entryShortcut);
+        rowShortcut.activatable_widget = entryShortcut;
 
-    const entryId = new Gtk.Entry({
-        placeholder_text: 'org.gnome.Terminal.desktop',
-        text: settings.get_string('terminal-id'),
-        valign: Gtk.Align.CENTER,
-        hexpand: true,
-    });
+        settings.bind("terminal-shortcut-text", entryShortcut, "text", Gio.SettingsBindFlags.DEFAULT);
 
-    rowId.add_suffix(entryId);
-    rowId.activatable_widget = entryId;
+        settings.connect("changed::terminal-shortcut-text", () => {
+            const shortcutText = settings.get_string("terminal-shortcut-text");
+            const [success, key, mods] = Gtk.accelerator_parse(shortcutText);
 
-    settings.bind(
-        'terminal-id',
-        entryId,
-        'text',
-        Gio.SettingsBindFlags.DEFAULT
-    );
+            if (success && Gtk.accelerator_valid(key, mods)) {
+                const shortcut = Gtk.accelerator_name(key, mods);
+                settings.set_strv("terminal-shortcut", [shortcut]);
+            } else {
+                settings.set_strv("terminal-shortcut", []);
+            }
+        });
 
-    const rowShortcut = new Adw.ActionRow({
-        title: 'Toggle Shortcut',
-        subtitle: '&lt;special_key&gt;regular_key',
-    });
-    group.add(rowShortcut);
-
-    const entryShortcut = new Gtk.Entry({
-        placeholder_text: '<Control>space',
-        text: settings.get_string('terminal-shortcut-text'),
-        valign: Gtk.Align.CENTER,
-        hexpand: true,
-    });
-
-    rowShortcut.add_suffix(entryShortcut);
-    rowShortcut.activatable_widget = entryShortcut;
-
-    settings.bind(
-        'terminal-shortcut-text',
-        entryShortcut,
-        'text',
-        Gio.SettingsBindFlags.DEFAULT
-    );
-
-    settings.connect('changed::terminal-shortcut-text', () => {
-        const shortcutText = settings.get_string('terminal-shortcut-text');
-        const [success, key, mods] = Gtk.accelerator_parse(shortcutText);
-
-        if (success && Gtk.accelerator_valid(key, mods)) {
-            const shortcut = Gtk.accelerator_name(key, mods);
-            settings.set_strv('terminal-shortcut', [shortcut]);
-        } else {
-            settings.set_strv('terminal-shortcut', []);
-        }
-    });
-
-    window.add(page);
+        window.add(page);
+    }
 }
