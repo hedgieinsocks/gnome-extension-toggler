@@ -15,13 +15,13 @@ export default class TogglerExtension extends Extension {
     }
 
     _toggleTerminal() {
-        let id = this._settings.get_string("terminal-id");
-        let terminal = appSys.lookup_app(id);
+        const id = this._settings.get_string("terminal-id");
+        const terminal = appSys.lookup_app(id);
         if (!terminal) return;
 
-        let windows = terminal.get_windows();
-        let focus = global.display.get_focus_window();
-        let focusedWindow = focus ? focus.get_id() : null;
+        const windows = terminal.get_windows();
+        const focus = global.display.get_focus_window();
+        const focusedWindow = focus ? focus.get_id() : null;
 
         if (!windows.length) {
             return terminal.open_new_window(-1);
@@ -42,7 +42,6 @@ export default class TogglerExtension extends Extension {
 
     enable() {
         this._settings = this.getSettings();
-
         Main.wm.addKeybinding("terminal-shortcut", this._settings, FLAG, MODE, () => {
             this._toggleTerminal();
         });

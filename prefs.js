@@ -1,7 +1,7 @@
+import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 import Adw from "gi://Adw";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
-import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 export default class TogglerPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -11,6 +11,7 @@ export default class TogglerPreferences extends ExtensionPreferences {
         const group = new Adw.PreferencesGroup();
         page.add(group);
 
+        // App ID
         const rowId = new Adw.ActionRow({
             title: "Terminal App ID",
             subtitle: "/usr/share/applications/",
@@ -29,6 +30,7 @@ export default class TogglerPreferences extends ExtensionPreferences {
 
         settings.bind("terminal-id", entryId, "text", Gio.SettingsBindFlags.DEFAULT);
 
+        // Shortcut
         const rowShortcut = new Adw.ActionRow({
             title: "Toggle Shortcut",
             subtitle: "&lt;special_key&gt;regular_key",
