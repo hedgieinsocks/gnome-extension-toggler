@@ -25,10 +25,10 @@ export default class TogglerPreferences extends ExtensionPreferences {
             hexpand: true,
         });
 
+        settings.bind("terminal-id", entryId, "text", Gio.SettingsBindFlags.DEFAULT);
+
         rowId.add_suffix(entryId);
         rowId.activatable_widget = entryId;
-
-        settings.bind("terminal-id", entryId, "text", Gio.SettingsBindFlags.DEFAULT);
 
         // Shortcut
         const rowShortcut = new Adw.ActionRow({
@@ -44,10 +44,10 @@ export default class TogglerPreferences extends ExtensionPreferences {
             hexpand: true,
         });
 
+        settings.bind("terminal-shortcut-text", entryShortcut, "text", Gio.SettingsBindFlags.DEFAULT);
+
         rowShortcut.add_suffix(entryShortcut);
         rowShortcut.activatable_widget = entryShortcut;
-
-        settings.bind("terminal-shortcut-text", entryShortcut, "text", Gio.SettingsBindFlags.DEFAULT);
 
         settings.connect("changed::terminal-shortcut-text", () => {
             const shortcutText = settings.get_string("terminal-shortcut-text");
