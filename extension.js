@@ -1,30 +1,27 @@
-'use strict';
-
-
-const {Meta, Shell} = imports.gi;
-const Main = imports.ui.main;
-const ExtensionUtils = imports.misc.extensionUtils;
+import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import Meta from "gi://Meta";
+import Shell from "gi://Shell";
 
 const MODE = Shell.ActionMode.NORMAL;
 const FLAG = Meta.KeyBindingFlags.NONE;
 
 const appSys = Shell.AppSystem.get_default();
 
-
-class Extension {
-    constructor() {
+export default class TogglerExtension extends Extension {
+    constructor(metadata) {
+        super(metadata);
         this._settings = null;
     }
 
-
     _toggleTerminal() {
-        let id = this._settings.get_string('terminal-id');
-        let terminal = appSys.lookup_app(id);
+        const id = this._settings.get_string("terminal-id");
+        const terminal = appSys.lookup_app(id);
         if (!terminal) return;
 
-        let windows = terminal.get_windows();
-        let focus = global.display.get_focus_window();
-        let focusedWindow = focus ? focus.get_id() : null;
+        const windows = terminal.get_windows();
+        const focus = global.display.get_focus_window();
+        const focusedWindow = focus ? focus.get_id() : null;
 
         if (!windows.length) {
             return terminal.open_new_window(-1);
@@ -43,23 +40,15 @@ class Extension {
         }
     }
 
-
     enable() {
-        this._settings = ExtensionUtils.getSettings();
-
-        Main.wm.addKeybinding('terminal-shortcut', this._settings, FLAG, MODE, () => {
+        this._settings = this.getSettings();
+        Main.wm.addKeybinding("terminal-shortcut", this._settings, FLAG, MODE, () => {
             this._toggleTerminal();
         });
     }
 
-
     disable() {
-        Main.wm.removeKeybinding('terminal-shortcut');
+        Main.wm.removeKeybinding("terminal-shortcut");
         this._settings = null;
     }
-}
-
-
-function init() {
-    return new Extension();
 }
