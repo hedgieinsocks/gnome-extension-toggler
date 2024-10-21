@@ -10,5 +10,8 @@
     <key name="terminal-shortcut-text" type="s">
       <default><![CDATA['<Ctrl>space']]></default>
     </key>
+    <key name="workspaces-mode" type="i">
+      <default>0</default>
+    </key>
   </schema>
 </schemalist>
