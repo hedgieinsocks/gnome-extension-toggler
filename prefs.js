@@ -59,6 +59,33 @@ export default class TogglerPreferences extends ExtensionPreferences {
     rowShortcut.add_suffix(entryShortcut);
     rowShortcut.activatable_widget = entryShortcut;
 
+    // Workspaces
+    const rowWorkspaces = new Adw.ActionRow({
+      title: "Workspaces Mode",
+      subtitle: "What to do when terminal window is in different workspace"
+    })
+    group.add(rowWorkspaces)
+
+    const workspaceModes = new Gtk.StringList()
+    workspaceModes.append("Switch to opened")
+    workspaceModes.append("Move into space")
+    workspaceModes.append("New for workspace")
+
+    const entryWorkspaces = new Gtk.DropDown({
+      valign: Gtk.Align.CENTER,
+      model: workspaceModes
+    })
+
+    settings.bind(
+      "workspaces-mode",
+      entryWorkspaces,
+      "selected",
+      Gio.SettingsBindFlags.DEFAULT
+    )
+
+    rowWorkspaces.add_suffix(entryWorkspaces)
+    rowWorkspaces.activatable_widget = entryWorkspaces
+
     settings.connect("changed::terminal-shortcut-text", () => {
       const shortcutText = settings.get_string("terminal-shortcut-text");
       const [success, key, mods] = Gtk.accelerator_parse(shortcutText);
