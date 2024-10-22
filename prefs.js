@@ -63,12 +63,6 @@ export default class TogglerPreferences extends ExtensionPreferences {
     rowShortcut.activatable_widget = entryShortcut;
 
     // Workspaces
-    const rowWorkspaces = new Adw.ActionRow({
-      title: "Workspaces Mode",
-      subtitle: "What to do when terminal window is in different workspace"
-    })
-    terminalGroup.add(rowWorkspaces)
-
     const groupWorkspaces = new Adw.PreferencesGroup({
       title: "Workspaces behavior"
     });
