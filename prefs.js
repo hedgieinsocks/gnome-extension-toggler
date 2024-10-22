@@ -1,5 +1,6 @@
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 import Adw from "gi://Adw";
+import GLib from 'gi://GLib';
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 
@@ -8,15 +9,17 @@ export default class TogglerPreferences extends ExtensionPreferences {
     const settings = this.getSettings();
 
     const page = new Adw.PreferencesPage();
-    const group = new Adw.PreferencesGroup();
-    page.add(group);
+    const terminalGroup = new Adw.PreferencesGroup({
+      title: "Terminal settings"
+    });
+    page.add(terminalGroup);
 
     // App ID
     const rowId = new Adw.ActionRow({
       title: "Terminal App ID",
       subtitle: "/usr/share/applications/",
     });
-    group.add(rowId);
+    terminalGroup.add(rowId);
 
     const entryId = new Gtk.Entry({
       placeholder_text: "org.gnome.Terminal.desktop",
@@ -40,7 +43,7 @@ export default class TogglerPreferences extends ExtensionPreferences {
       title: "Toggle Shortcut",
       subtitle: "&lt;special_key&gt;regular_key",
     });
-    group.add(rowShortcut);
+    terminalGroup.add(rowShortcut);
 
     const entryShortcut = new Gtk.Entry({
       placeholder_text: "<Control>space",
@@ -64,27 +67,34 @@ export default class TogglerPreferences extends ExtensionPreferences {
       title: "Workspaces Mode",
       subtitle: "What to do when terminal window is in different workspace"
     })
-    group.add(rowWorkspaces)
+    terminalGroup.add(rowWorkspaces)
 
-    const workspaceModes = new Gtk.StringList()
-    workspaceModes.append("Switch to opened")
-    workspaceModes.append("Move into space")
-    workspaceModes.append("New for workspace")
+    const groupWorkspaces = new Adw.PreferencesGroup({
+      title: "Workspaces behavior"
+    });
+    page.add(groupWorkspaces)
+    const actionGroup = new Gio.SimpleActionGroup()
+    actionGroup.add_action(settings.create_action('workspaces-mode'))
+    page.insert_action_group('toggler', actionGroup)
 
-    const entryWorkspaces = new Gtk.DropDown({
-      valign: Gtk.Align.CENTER,
-      model: workspaceModes
-    })
+    const modes = [
+      { mode: 'move-opened', title: 'Move the window to the current workspace' },
+      { mode: 'focus-opened', title: 'Switch to the workspace with the terminal window' },
+      { mode: 'one-per-space', title: 'Launch a new instance in the current workspace' },
+    ];
 
-    settings.bind(
-      "workspaces-mode",
-      entryWorkspaces,
-      "selected",
-      Gio.SettingsBindFlags.DEFAULT
-    )
-
-    rowWorkspaces.add_suffix(entryWorkspaces)
-    rowWorkspaces.activatable_widget = entryWorkspaces
+    for (const { mode, title } of modes) {
+      const check = new Gtk.CheckButton({
+        action_name: 'toggler.workspaces-mode',
+        action_target: new GLib.Variant('s', mode),
+      });
+      const row = new Adw.ActionRow({
+        activatable_widget: check,
+        title,
+      });
+      row.add_prefix(check);
+      groupWorkspaces.add(row);
+    }
 
     settings.connect("changed::terminal-shortcut-text", () => {
       const shortcutText = settings.get_string("terminal-shortcut-text");
