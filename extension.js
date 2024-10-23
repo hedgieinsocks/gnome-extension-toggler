@@ -8,6 +8,12 @@ const FLAG = Meta.KeyBindingFlags.NONE;
 
 const appSys = Shell.AppSystem.get_default();
 
+const WorkspaceMode = {
+  MOVE_OPENED: 0,
+  FOCUS_OPENED: 1,
+  ONE_PER_SPACE: 2,
+};
+
 export default class TogglerExtension extends Extension {
   constructor(metadata) {
     super(metadata);
@@ -18,6 +24,8 @@ export default class TogglerExtension extends Extension {
     const id = this._settings.get_string("terminal-id");
     const terminal = appSys.lookup_app(id);
     if (!terminal) return;
+
+    const workspaceMode = this._settings.get_enum('workspaces-mode')
 
     const windows = terminal.get_windows();
     const focus = global.display.get_focus_window();

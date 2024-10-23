@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
+  <enum id="org.gnome.shell.extensions.toggler.WorkspaceInvokeMode">
+    <value value="0" nick="move-opened"/>
+    <value value="1" nick="focus-opened"/>
+    <value value="2" nick="one-per-space"/>
+  </enum>
+
   <schema id="org.gnome.shell.extensions.toggler" path="/org/gnome/shell/extensions/toggler/">
     <key name="terminal-id" type="s">
       <default>"org.gnome.Terminal.desktop"</default>
@@ -9,6 +15,9 @@
     </key>
     <key name="terminal-shortcut-text" type="s">
       <default><![CDATA['<Ctrl>space']]></default>
+    </key>
+    <key name="workspaces-mode" enum="org.gnome.shell.extensions.toggler.WorkspaceInvokeMode">
+      <default>'move-opened'</default>
     </key>
   </schema>
 </schemalist>
