@@ -1,6 +1,6 @@
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 import Adw from "gi://Adw";
-import GLib from 'gi://GLib';
+import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 
@@ -9,17 +9,24 @@ export default class TogglerPreferences extends ExtensionPreferences {
     const settings = this.getSettings();
 
     const page = new Adw.PreferencesPage();
-    const terminalGroup = new Adw.PreferencesGroup({
-      title: "Terminal settings"
+
+    const mainGroup = new Adw.PreferencesGroup({
+      title: "Main Settings",
     });
-    page.add(terminalGroup);
+    page.add(mainGroup);
+
+    const workspacesGroup = new Adw.PreferencesGroup({
+      title: "Workspaces Mode",
+      description: "When the terminal window is not in the active workspace",
+    });
+    page.add(workspacesGroup);
 
     // App ID
     const rowId = new Adw.ActionRow({
       title: "Terminal App ID",
       subtitle: "/usr/share/applications/",
     });
-    terminalGroup.add(rowId);
+    mainGroup.add(rowId);
 
     const entryId = new Gtk.Entry({
       placeholder_text: "org.gnome.Terminal.desktop",
@@ -43,7 +50,7 @@ export default class TogglerPreferences extends ExtensionPreferences {
       title: "Toggle Shortcut",
       subtitle: "&lt;special_key&gt;regular_key",
     });
-    terminalGroup.add(rowShortcut);
+    mainGroup.add(rowShortcut);
 
     const entryShortcut = new Gtk.Entry({
       placeholder_text: "<Control>space",
@@ -63,31 +70,36 @@ export default class TogglerPreferences extends ExtensionPreferences {
     rowShortcut.activatable_widget = entryShortcut;
 
     // Workspaces
-    const groupWorkspaces = new Adw.PreferencesGroup({
-      title: "Workspaces behavior"
-    });
-    page.add(groupWorkspaces)
-    const actionGroup = new Gio.SimpleActionGroup()
-    actionGroup.add_action(settings.create_action('workspaces-mode'))
-    page.insert_action_group('toggler', actionGroup)
+    const actionGroup = new Gio.SimpleActionGroup();
+    actionGroup.add_action(settings.create_action("workspaces-mode"));
+    page.insert_action_group("toggler", actionGroup);
 
-    const modes = [
-      { mode: 'move-opened', title: 'Move the window to the current workspace' },
-      { mode: 'focus-opened', title: 'Switch to the workspace with the terminal window' },
-      { mode: 'one-per-space', title: 'Launch a new instance in the current workspace' },
+    const workspaceModes = [
+      {
+        mode: 0,
+        title: "Move the terminal window to the current workspace",
+      },
+      {
+        mode: 1,
+        title: "Switch to the workspace with the terminal window",
+      },
+      {
+        mode: 2,
+        title: "Launch a new terminal instance in the current workspace",
+      },
     ];
 
-    for (const { mode, title } of modes) {
+    for (const { mode, title } of workspaceModes) {
       const check = new Gtk.CheckButton({
-        action_name: 'toggler.workspaces-mode',
-        action_target: new GLib.Variant('s', mode),
+        action_name: "toggler.workspaces-mode",
+        action_target: new GLib.Variant("i", mode),
       });
       const row = new Adw.ActionRow({
         activatable_widget: check,
         title,
       });
       row.add_prefix(check);
-      groupWorkspaces.add(row);
+      workspacesGroup.add(row);
     }
 
     settings.connect("changed::terminal-shortcut-text", () => {

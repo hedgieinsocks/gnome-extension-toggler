@@ -3,17 +3,6 @@ import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import Meta from "gi://Meta";
 import Shell from "gi://Shell";
 
-const MODE = Shell.ActionMode.NORMAL;
-const FLAG = Meta.KeyBindingFlags.NONE;
-
-const appSys = Shell.AppSystem.get_default();
-
-const WorkspaceMode = {
-  MOVE_OPENED: 0,
-  FOCUS_OPENED: 1,
-  ONE_PER_SPACE: 2,
-};
-
 export default class TogglerExtension extends Extension {
   constructor(metadata) {
     super(metadata);
@@ -22,30 +11,47 @@ export default class TogglerExtension extends Extension {
 
   _toggleTerminal() {
     const id = this._settings.get_string("terminal-id");
-    const terminal = appSys.lookup_app(id);
-    if (!terminal) return;
+    const appSys = Shell.AppSystem.get_default();
+    const terminalApp = appSys.lookup_app(id);
+    if (!terminalApp) return;
 
-    const workspaceMode = this._settings.get_enum('workspaces-mode')
+    const terminalWindows = terminalApp.get_windows();
 
-    const windows = terminal.get_windows();
-    const focus = global.display.get_focus_window();
-    const focusedWindow = focus ? focus.get_id() : null;
-
-    if (!windows.length) {
-      return terminal.open_new_window(-1);
+    if (!terminalWindows.length) {
+      return terminalApp.open_new_window(-1);
     }
 
-    if (windows.length > 1) {
-      return Main.activateWindow(windows[windows.length - 1]);
-    }
+    const focusWindow = global.display.get_focus_window();
+    const focusWindowId = focusWindow ? focusWindow.get_id() : null;
 
-    if (windows.length === 1) {
-      if (focusedWindow === windows[0].get_id()) {
-        return windows[0].minimize();
-      } else {
-        return Main.activateWindow(windows[0]);
+    for (const window of terminalWindows) {
+      if (window.get_id() === focusWindowId) {
+        return window.minimize();
       }
     }
+
+    const activeWorkspaceIndex =
+      global.workspace_manager.get_active_workspace_index();
+
+    for (const window of terminalWindows) {
+      if (window.get_workspace().index() === activeWorkspaceIndex) {
+        return Main.activateWindow(window);
+      }
+    }
+
+    const workspacesMode = this._settings.get_int("workspaces-mode");
+
+    if (workspacesMode === 2) {
+      return terminalApp.open_new_window(-1);
+    }
+
+    const window = terminalWindows[0];
+
+    if (workspacesMode === 0) {
+      window.change_workspace_by_index(activeWorkspaceIndex, false);
+    }
+
+    return Main.activateWindow(window);
   }
 
   enable() {
@@ -53,8 +59,8 @@ export default class TogglerExtension extends Extension {
     Main.wm.addKeybinding(
       "terminal-shortcut",
       this._settings,
-      FLAG,
-      MODE,
+      Meta.KeyBindingFlags.NONE,
+      Shell.ActionMode.NORMAL,
       () => {
         this._toggleTerminal();
       },
