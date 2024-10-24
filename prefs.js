@@ -47,7 +47,7 @@ export default class TogglerPreferences extends ExtensionPreferences {
 
     // Shortcut
     const rowShortcut = new Adw.ActionRow({
-      title: "Toggle Shortcut",
+      title: "Keyboard Shortcut",
       subtitle: "&lt;special_key&gt;regular_key",
     });
     mainGroup.add(rowShortcut);

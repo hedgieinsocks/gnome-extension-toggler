@@ -21,22 +21,26 @@ export default class TogglerExtension extends Extension {
       return terminalApp.open_new_window(-1);
     }
 
-    const focusWindow = global.display.get_focus_window();
-    const focusWindowId = focusWindow ? focusWindow.get_id() : null;
-
-    for (const window of terminalWindows) {
-      if (window.get_id() === focusWindowId) {
-        return window.minimize();
-      }
-    }
+    const focusedWindow = global.display.get_focus_window();
+    const focusedTerminalWindow = terminalWindows.find(
+      (window) => window === focusedWindow,
+    );
 
     const activeWorkspaceIndex =
       global.workspace_manager.get_active_workspace_index();
 
-    for (const window of terminalWindows) {
-      if (window.get_workspace().index() === activeWorkspaceIndex) {
-        return Main.activateWindow(window);
-      }
+    const unfocusedTerminalWindows = terminalWindows.filter(
+      (window) =>
+        window !== focusedTerminalWindow &&
+        window.get_workspace().index() === activeWorkspaceIndex,
+    );
+
+    if (unfocusedTerminalWindows.length) {
+      return Main.activateWindow(unfocusedTerminalWindows.at(-1));
+    }
+
+    if (focusedTerminalWindow) {
+      return focusedTerminalWindow.minimize();
     }
 
     const workspacesMode = this._settings.get_int("workspaces-mode");
@@ -45,13 +49,13 @@ export default class TogglerExtension extends Extension {
       return terminalApp.open_new_window(-1);
     }
 
-    const window = terminalWindows[0];
+    const terminalWindow = terminalWindows.at(-1);
 
     if (workspacesMode === 0) {
-      window.change_workspace_by_index(activeWorkspaceIndex, false);
+      terminalWindow.change_workspace_by_index(activeWorkspaceIndex, false);
     }
 
-    return Main.activateWindow(window);
+    return Main.activateWindow(terminalWindow);
   }
 
   enable() {
@@ -61,9 +65,7 @@ export default class TogglerExtension extends Extension {
       this._settings,
       Meta.KeyBindingFlags.NONE,
       Shell.ActionMode.NORMAL,
-      () => {
-        this._toggleTerminal();
-      },
+      this._toggleTerminal.bind(this),
     );
   }
 
