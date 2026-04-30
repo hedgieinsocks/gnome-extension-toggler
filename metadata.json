@@ -2,7 +2,7 @@
   "uuid": "toggler@hedgie.tech",
   "name": "Toggler",
   "description": "Toggle the terminal app via a keyboard shortcut",
-  "shell-version": ["45", "46", "47", "48", "49"],
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
   "settings-schema": "org.gnome.shell.extensions.toggler",
   "url": "https://github.com/hedgieinsocks/gnome-extension-toggler"
 }
